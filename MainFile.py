@@ -58,7 +58,7 @@ cv2.createTrackbar('Sat Low','myTracker',100,255,onTrack3)
 cv2.createTrackbar('Sat High','myTracker',255,255,onTrack4)
 cv2.createTrackbar('Val Low','myTracker',100,255,onTrack5)
 cv2.createTrackbar('Val High','myTracker',255,255,onTrack6)
-
+# Look at VisDet.py for all documentation until Line 103
 while True:
    tStart=time.time()
    frame= picam2.capture_array()
@@ -100,26 +100,26 @@ while True:
    cv2.imshow('My Objest',myObjectSmall)
    if cv2.waitKey(1)==ord('q'):
        break
-   if cv2.waitKey(1) == ord('w'):
-      actioncent = centerarray
-      for i in range(len(actioncent)):
+   if cv2.waitKey(1) == ord('w'): # Waits for an input of 'w'
+      actioncent = centerarray # Makes a list of the current centers detected
+      for i in range(len(actioncent)): # Loops for an amount of time equal to the length of the List
         actualx = ((actioncent[i][0]/790)*600)-300 #Converts Camera location of center into Robot Coordinates DOESN'T WORK RIGHT, PROBABLY
         actualy = ((actioncent[i][1]/720)*540)-270 #As above. The y and x axis flips between the robot coords and the camera pixels
         print(actualx) #Troubleshooting
         print(actualy) #Troubleshooting
-        roboty = actualx
+        roboty = actualx # Since the robot and camera's axes are flipped, this flips them with numbers
         robotx = actualy
-        robot.MovePose(robotx, roboty, 200, -180, 0, 180)
-        robot.MoveLin(robotx, roboty, 100, -180, 0, 180)
-        robot.WaitIdle()
-        robot.MovePose(150, 100, 300, 60, 90, 0)
-    
+        robot.MovePose(robotx, roboty, 200, -180, 0, 180) # This is the sticking point, it should move the robot to a position above the detected objects, but it doesn't
+        robot.MoveLin(robotx, roboty, 100, -180, 0, 180) # Lowers the end effector to the rock, theoretically
+        robot.WaitIdle() # Waits until the robot has stopped
+        robot.MovePose(150, 100, 300, 60, 90, 0) #Moves Robot to a neutral point
+# Theoretically, in the above for loop, you will need to add a close gripper function, move the robot to the drop off point, and open gripper, then just loop it
 
    tEnd=time.time()
    loopTime=tEnd-tStart
    fps=.9*fps + .1*(1/loopTime)
-cv2.destroyAllWindows()
-robot.DeactivateRobot()
-robot.WaitDeactivated()
-robot.Disconnect()
+cv2.destroyAllWindows() # Closes all opencv windows
+robot.DeactivateRobot() # Starts shutting the robot down
+robot.WaitDeactivated() # Waits until the robot is deactivated
+robot.Disconnect() # Fully disconnects from the robot
 
