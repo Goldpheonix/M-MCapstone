@@ -110,15 +110,15 @@ while True:
         if actioncent[i][0] >= 300 and actioncent[i][0] <= 350:
          print("skipped")
          continue
-        actualx = ((actioncent[i][0]/790)*600)-300 #Converts Camera location of center into Robot Coordinates DOESN'T WORK RIGHT, PROBABLY
-        actualy = ((actioncent[i][1]/720)*540)-270 #As above. The y and x axis flips between the robot coords and the camera pixels
-        print(actualx) #Troubleshooting
+        actualx = ((actioncent[i][0]/740)*600)-220 #Converts Camera location of center into Robot Coordinates DOESN'T WORK RIGHT, PROBABLY ((actioncent[i][0]/790)*600'(2*300)')-300
+        actualy = ((actioncent[i][1]/719)*400)-150 #As above. The y and x axis flips between the robot coords and the camera pixels ((actioncent[i][1]/719)*540'(2*270)')-270
+        print(actualx) #Troubleshootingw
         print(actualy) #Troubleshooting
         roboty = -actualx # Since the robot and camera's axes are flipped, this flips them with numbers
         robotx = -actualy
         robot.MovePose(robotx, roboty, 200, -180, 0, 180) # This is the sticking point, it should move the robot to a position above the detected objects, but it doesn't
         robot.WaitIdle()
-        robot.MoveLin(robotx, roboty, 100, -180, 0, 180) # Lowers the end effector to the rock, theoretically
+        robot.MoveLin(robotx, roboty, 50, -180, 0, 180) # Lowers the end effector to the rock, theoretically
         robot.WaitIdle() # Waits until the robot has stopped
         robot.MovePose(150, 100, 300, 60, 90, 0) #Moves Robot to a neutral point
         robot.WaitIdle()
