@@ -5,9 +5,12 @@ import numpy as np
 import mecademicpy.robot as mdr
 robot = mdr.Robot()
 robot.Connect(address='192.168.0.100', enable_synchronous_mode=False)
+robot.ResetError()
+robot.ResumeMotion()
 robot.ActivateAndHome()
 robot.WaitHomed()
 robot.MoveJoints(0,-60,60,0,0,0)
+robot.WaitIdle()
 picam2 = Picamera2()
 dispW=1280
 dispH=1024
@@ -64,8 +67,8 @@ while True:
    frame= picam2.capture_array()
    roi = frame[11:720, 185:975]
    cv2.putText(roi,str(int(fps))+' FPS',pos,font,height,myColor,weight)
-   lowerBound=np.array([hueLow,satLow,valLow])
-   upperBound=np.array([hueHigh,satHigh,valHigh])
+   lowerBound=np.array([80,50,69])
+   upperBound=np.array([160,90,255])
    frameHSV=cv2.cvtColor(roi,cv2.COLOR_BGR2HSV)
    myMask=cv2.inRange(frameHSV,lowerBound,upperBound)
    myMaskSmall=cv2.resize(myMask,(int(dispW/2),int(dispH/2)))
@@ -102,17 +105,23 @@ while True:
        break
    if cv2.waitKey(1) == ord('w'): # Waits for an input of 'w'
       actioncent = centerarray # Makes a list of the current centers detected
+      robot.ResumeMotion()
       for i in range(len(actioncent)): # Loops for an amount of time equal to the length of the List
+        if actioncent[i][0] >= 300 and actioncent[i][0] <= 350:
+         print("skipped")
+         continue
         actualx = ((actioncent[i][0]/790)*600)-300 #Converts Camera location of center into Robot Coordinates DOESN'T WORK RIGHT, PROBABLY
         actualy = ((actioncent[i][1]/720)*540)-270 #As above. The y and x axis flips between the robot coords and the camera pixels
         print(actualx) #Troubleshooting
         print(actualy) #Troubleshooting
-        roboty = actualx # Since the robot and camera's axes are flipped, this flips them with numbers
-        robotx = actualy
+        roboty = -actualx # Since the robot and camera's axes are flipped, this flips them with numbers
+        robotx = -actualy
         robot.MovePose(robotx, roboty, 200, -180, 0, 180) # This is the sticking point, it should move the robot to a position above the detected objects, but it doesn't
+        robot.WaitIdle()
         robot.MoveLin(robotx, roboty, 100, -180, 0, 180) # Lowers the end effector to the rock, theoretically
         robot.WaitIdle() # Waits until the robot has stopped
         robot.MovePose(150, 100, 300, 60, 90, 0) #Moves Robot to a neutral point
+        robot.WaitIdle()
 # Theoretically, in the above for loop, you will need to add a close gripper function, move the robot to the drop off point, and open gripper, then just loop it
 
    tEnd=time.time()
